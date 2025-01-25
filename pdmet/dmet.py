@@ -29,7 +29,6 @@ from pdmet.schmidtbasis import get_bath_using_RHF_1RDM, get_bath_using_gamma_RHF
 from pdmet.tools import tchkfile, tplot, tprint, tunix, misc
 from pdmet.lib.build import libdmet
 import sys
-sys.path.append('/panfs/roc/groups/6/gagliard/phamx494/pyWannier90/src')
 import pywannier90
 
 
@@ -39,7 +38,7 @@ class pDMET:
         '''
         Args:
             kmf                             : a rhf wave function from pyscf/pbc
-            w90                                : a converged wannier90 object
+            w90                             : a converged wannier90 object
             OEH_type                        : One-electron Hamiltonian used in the bath construction, h(k) = OEH(k) + umat(k) 
             SCmethod                        : 'BFGS'/'CG'/'Newton-CG' self-consistent iteration method, defaut: BFGS
             SC_threshold                    : convergence criteria for correlatiself.e_toton potential, default: 1e-6
