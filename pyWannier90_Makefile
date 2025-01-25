@@ -2,7 +2,7 @@
 # pyWannier90                           #                                
 # User defines the compiling parameters #
 #----------------START------------------#
-W90DIR =
+W90DIR =PLACEHOLDER
 LIBDIR =/software/intel/parallel_studio_xe_2020_update1/
 USE_INTEL = yes
 #-----------------END-------------------#
