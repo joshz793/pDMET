@@ -1,9 +1,9 @@
 # Sample Installation Guide: 
 Last Edited: 24th Jan, 2025
 
-The installation guide was first prepared by Valay Agarawal for supercomputers in the University of Chicago and has been added here for support.
+[24 Jan 2025] This installation guide has been written by Joshua Zhou. This guide is currently written *strictly* for installing pDMET on the Midway3 Cluster at the University of Chicago.
 
-*[24 Jan 2025]* This installation guide has been updated by Joshua Zhou. This guide is currently written *strictly* for installing pDMET on the Midway3 Cluster at the University of Chicago.
+This guide will step the user through installation of each dependency of pDMET. Even if these dependencies are already installed on the user's system, **please follow from the beginning, as dependency versions are critical**.
 
 
 ## Loading the proper modules
@@ -56,7 +56,7 @@ Now, we will perform this installation step-by-step through each dependency.
 ## Installation of PySCF:
 **The currently available version of pDMET is known to be dependent on specific versions of PySCF and PySCF-forge.** This installation guide will provide specific versions to compile which have been found to work. There is no guarantee other versions are compatible at the moment.
 
-1. Clone PySCF. PySCF may be found at https://github.com/pyscf/pyscf. **If you regularly use a different PySCF installation, see *[Additional Note 1](#additional-note-1)***
+1. Clone PySCF. PySCF may be found at https://github.com/pyscf/pyscf. **If you regularly use a different PySCF installation, see *[PySCF Version Swapping](#pyscf-version-swapping)***
    ```
    cd $dir
    git clone https://github.com/pyscf/pyscf.git
@@ -138,6 +138,10 @@ The current version of pDMET depends on methods developed by Matthew R. Hermes, 
 5. If nothing returns, then installation is successful.
 
 ## Install Wannier90 and pyWannier90
+[Wannier90](http://www.wannier.org/download) is an open-source code to generate Maximally-Localised Generalised Wannier Functions. 
+
+[pyWannier90](https://github.com/hungpham2017/pyWannier90) is a Python interface for Wannier90 developed by Hung Q. Pham.
+
 1. Download wannier90 either from http://www.wannier.org/download/ or https://github.com/wannier-developers/wannier90. *Important*: If you download from the github, make sure you download the release version 3.1.0. This guide will proceed using the gzipped .tar file
    ```
    cd $dir
@@ -249,28 +253,39 @@ With all the dependencies properly installed, we may now continue with a straigh
    ```
    You may see FutureWarnings. If these are the only outputs, then we likely have a successful installation of pDMET!
 
+Before you close the terminal, it is recommended you save your environment variables. A simple way to keep the extensive PYTHONPATH we created during the installation process may be found at [Saving PYTHONPATH](#saving-pythonpath)
 ## Aditional Notes
-### Additional Note 1
+### PySCF Version Swapping
 If you require a different version of PySCF for other tasks, you may consider the following option to make your life easier:
 
-- Clone the repository again, save this repository under a separate name, and checkout to the proper version
+1. Clone the repository again, save this repository under a separate name, and checkout to the proper version
+   ```
+   git clone https://github.com/pyscf/pyscf.git pyscf2.1.0 # Clone PySCF into a directory named "pyscf2.1.0"
+   cd pyscf2.1.0
+   git checkout b337109d8 # This is the tag associated with the desired version
+   cd ..
+   ```
+2. Assuming your previous installation is at a directory `./pyscf`, and your programs find pyscf using a PATH/PYTHONPATH leading to this directory, the following can be done to switch PySCF versions:
+   ```
+   mv ./pyscf ./pyscf2.7.0 # Replaced the numbers with the corresponding version of pyscf. This is for your own bookkeeping
+   ln -s ./pyscf2.1.0 ./pyscf # Creates a symbolic link to our previously made PySCF version
+   ```
+3. When you are done using pDMET and need to switch back to your other version, do the following:
+   ```
+   unlink pyscf
+   ln -s ./pyscf2.7.0 ./pyscf
+   ```
+   You may always check which version of PySCF your python finds with the following:
+   ```
+   python -c 'import pyscf; print(pyscf.__version__)'
+   ```
+
+### Saving PYTHONPATH
 ```
-git clone https://github.com/pyscf/pyscf.git pyscf2.1.0 # Clone PySCF into a directory named "pyscf2.1.0"
-cd pyscf2.1.0
-git checkout b337109d8 # This is the tag associated with the desired version
-cd ..
+echo $PYTHONPATH > $dir/pythonpath.txt
 ```
-Assuming your previous installation is at a directory `./pyscf`, and your programs find pyscf using a PATH/PYTHONPATH leading to this directory, the following can be done to switch PySCF versions:
+When you need to use pDMET again, you may then set your PYTHONPATH easily with (adjusting the path as necessary).
 ```
-mv ./pyscf ./pyscf2.7.0 # Replaced the numbers with the corresponding version of pyscf. This is for your own bookkeeping
-ln -s ./pyscf2.1.0 ./pyscf # Creates a symbolic link to our previously made PySCF version
+export PYTHONPATH=$(cat pythonpath.txt):$PYTHONPATH
 ```
-When you are done using pDMET and need to switch back to your other version, do the following:
-```
-unlink pyscf
-ln -s ./pyscf2.7.0 ./pyscf
-```
-You may always check which version of PySCF your python finds with the following:
-```
-python -c 'import pyscf; print(pyscf.__version__)'
-```
+This may similarly be done for the PYSCF_EXT_PATH, although this likely a much shorter path than PYTHONPATH
