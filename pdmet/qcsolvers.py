@@ -1710,15 +1710,11 @@ from pyscf.dft import gen_grid
 from pyscf.mcscf import mc_ao2mo, mc1step
 from pyscf.fci.direct_spin1 import _unpack_nelec
 from pyscf.mcscf.addons import StateAverageMCSCFSolver, state_average_mix, state_average_mix_, StateAverageMixFCISolver
-from mrh.my_pyscf.mcpdft import pdft_veff, ci_scf
 from pyscf.lib import logger
 from pyscf.data.nist import BOHR
 from mrh.my_pyscf import mcpdft
 from mrh.my_pyscf.fci import csf_solver
 import math
-from mrh.my_pyscf.fci import csf_solver
-from scipy import linalg
-from mrh.my_dmet import localintegrals
 import os, time
 import sys, copy
 from pyscf import gto, scf, ao2mo, mcscf, fci, lib, dft
@@ -1837,11 +1833,6 @@ def get_E_ot (mc, rdm, ot, casdm1s, casdm1, casdm2, rdm1spin_sep_a, rdm1spin_sep
     moH_cas = mo_cas.conj ().T
     mo_core = mo_coeff[:,:ncore]
     moH_core = mo_core.conj ().T
-    print("mo_cas",mo_cas)
-    print("ao2eo_inv",ao2eo_inv.real)
-    print("lib.einsum('ap,pq->aq',  ao2eo[0].real, mo_cas )",lib.einsum('ap,pq->aq',  ao2eo_inv.real, mo_cas ))
-    print("mo_cas_ao2eo",mo_cas_ao2eo)
-    print("ao2eo[0]",ao2eo[0].real)
     t0 = (time.clock (), time.time ())
     spin = abs(mc.nelecas[0] - mc.nelecas[1])
     t0 = logger.timer (ot, 'rdms', *t0)
@@ -1859,7 +1850,7 @@ def get_E_ot (mc, rdm, ot, casdm1s, casdm1, casdm2, rdm1spin_sep_a, rdm1spin_sep
         cascm2 = _dms.dm2_cumulant (casdm2, casdm1s) #Check the exact implementations here       
         Pi = get_ontop_pair_density (ot, rho, ao, cascm2, mo_cas_ao2eo, dens_deriv, mask)
         t0 = logger.timer (ot, 'on-top pair density calculation', *t0)
-        E_ot += ot.get_E_ot (rho, Pi, weight)
+        E_ot += ot.eval_ot(rho, Pi, dderiv=0, weights=weight)[0].dot(weight) 
         t0 = logger.timer (ot, 'on-top exchange-correlation energy calculation', *t0)
     return E_ot
     
@@ -2043,7 +2034,8 @@ def sa_get_E_ot (mc, rdm, casdm1s, casdm1, casdm2, ot, rdm1spin_sep_a, rdm1spin_
         cascm2 = _dms.dm2_cumulant (casdm2, casdm1s) #Check the exact implementations here       
         Pi = get_ontop_pair_density (ot, rho, ao, cascm2, mo_cas_ao2eo, dens_deriv, mask)
         t0 = logger.timer (ot, 'on-top pair density calculation', *t0)
-        E_ot += ot.get_E_ot (rho, Pi, weight)
+        # E_ot += ot.get_E_ot (rho, Pi, weight)
+        E_ot += ot.eval_ot(rho, Pi, dderiv=0, weights=weight)[0].dot(weight) 
         t0 = logger.timer (ot, 'on-top exchange-correlation energy calculation', *t0)
     return E_ot
     
